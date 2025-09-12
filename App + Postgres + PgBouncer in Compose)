@@ -1,0 +1,43 @@
+Step 1: Multi-Container Compose
+
+Write a docker-compose.yml with:
+
+your sample app container (can be Node or Python),
+
+Postgres container.
+
+Confirm the app connects to Postgres.
+
+Step 2: Add Persistence
+
+Attach a Docker volume to Postgres so data isn’t lost on container restart.
+
+Step 3: Add PgBouncer
+
+Add a PgBouncer container.
+
+Configure app → PgBouncer → Postgres.
+
+Confirm pooling works with a small load test (autocannon or k6).
+
+Step 4: Add Health Checks
+
+Add healthcheck entries to Compose for:
+
+App (HTTP 200 OK)
+
+Postgres (pg_isready)
+
+PgBouncer (tcp check on port 6432)
+
+Step 5: Add Resource Limits
+
+In docker-compose.yml, set mem_limit, cpus for each container.
+
+Test with load → confirm containers restart/recover properly.
+
+Step 6: Snapshot/Restore
+
+Document how to back up Postgres volume (docker exec + pg_dump) and restore it.
+
+Run a proof that snapshot/restore works.
