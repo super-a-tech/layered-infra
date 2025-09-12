@@ -1,0 +1,116 @@
+🛠️ Step 1: Multi-Container Compose
+1. Project Setup
+
+Create a new project folder (for example: app_and_db):
+
+mkdir app_and_db && cd app_and_db
+
+
+Inside, you’ll need:
+
+app_and_db/
+├── app.py              # sample Python app
+├── requirements.txt    # Flask + psycopg2
+└── docker-compose.yml  # defines app + Postgres
+
+2. Sample Python App (app.py)
+
+This is a minimal Flask app that connects to Postgres and shows a message if the connection works:
+
+from flask import Flask
+import psycopg2
+
+app = Flask(__name__)
+
+def get_db_connection():
+    conn = psycopg2.connect(
+        host="db",              # "db" = service name in docker-compose
+        database="mydb",
+        user="myuser",
+        password="mypassword"
+    )
+    return conn
+
+@app.route('/')
+def index():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT NOW();")  # simple query to check connection
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        return f"✅ Connected to Postgres! Server time is {result[0]}"
+    except Exception as e:
+        return f"❌ Database connection failed: {e}"
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000, debug=True)
+
+3. Requirements (requirements.txt)
+flask
+psycopg2-binary
+
+4. Dockerfile for the App
+
+You’ll need a Dockerfile to build the Python app:
+
+# Use official Python base image
+FROM python:3.10-slim
+
+# Set work directory
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app code
+COPY app.py .
+
+# Run the app
+CMD ["python", "app.py"]
+
+5. Docker Compose File (docker-compose.yml)
+
+This is where the magic happens: defining both the app and Postgres.
+
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+
+6. Run It 🚀
+
+From the same folder, run:
+
+docker-compose up --build
+
+
+This will start both containers:
+
+web (your Flask app)
+
+db (Postgres)
+
+Open 👉 http://localhost:5000
+
+You should see either:
+
+✅ Connected to Postgres! Server time is 2025-09-08 12:34:56
+
+
+Or an error if the DB isn’t ready yet (first startup can take a few seconds).
