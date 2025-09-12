@@ -1,0 +1,68 @@
+### Goal
+To introduce the practice of cloud cost estimation by installing and using the **Infracost CLI** on your local machine. The objective is to perform a scan of our entire staging environment to generate a complete, resource-by-resource breakdown of its estimated monthly cost.
+
+This task builds the foundational skill of cost awareness, allowing you to see the financial impact of our infrastructure *before* any changes are made.
+
+### How This Task Mitigates STRIDE Threats
+While primarily a financial governance tool, this practice helps build a security-first mindset and mitigates a specific threat:
+* **(D)enial of Service (Financial):** A simple typo in code could accidentally provision a massive resource, draining our budget and forcing a shutdown. By learning to run local cost checks, you can catch these "Denial of Wallet" blunders early, before the code is even committed.
+
+---
+
+### Resources
+
+* **Conceptual Understanding:**
+    * Infracost Overview: [https://www.infracost.io/docs/](https://www.infracost.io/docs/)
+* **Technical Documentation:**
+    * **Crucial:** Infracost CLI Installation Guide: [https://www.infracost.io/docs/install/](https://www.infracost.io/docs/install/)
+    * Infracost `breakdown` command: [https://www.infracost.io/docs/features/cost_breakdown/](https://www.infracost.io/docs/features/cost_breakdown/)
+
+---
+
+### Acceptance Criteria
+
+-   [x] A new branch is created named `ops/local-infracost-analysis`.
+-   [x] The Infracost CLI is successfully installed on your local machine by following the official documentation.
+-   [x] You have successfully authenticated to Infracost by configuring your API key locally.
+-   [x] You have successfully authenticated to AWS using the standard `aws sso login` command.
+-   [x] The `infracost breakdown` command runs successfully against the `environments/staging` directory without errors.
+-   [x] You have taken a **screenshot** of the full terminal output showing the total monthly cost and the resource breakdown.
+-   [x] You have posted the screenshot in the project's Discord channel for the team to review.
+
+---
+
+### Implementation Guide
+
+#### Step 1: Install the Infracost CLI
+Go to the official **Infracost Installation Guide** linked in the resources above. Follow the specific instructions for your operating system (Windows, macOS, or Linux) to install the `infracost` command line tool.
+
+#### Step 2: Get and Configure Your API Key
+Infracost needs a free API key to look up cloud prices.
+
+1.  Run the following command in your terminal:
+        `infracost auth login`
+2.  This will open a browser window. Sign up for a free Infracost Cloud account.
+3.  Once you're logged in, your API key will be automatically configured on your machine.
+
+#### Step 3: Authenticate with AWS
+Infracost needs the same AWS permissions that Terraform uses. Since we use AWS SSO, make sure you have an active session.
+
+1.  Run the following command in your terminal:
+        `aws sso login`
+2.  Follow the prompts in your browser to authenticate.
+
+#### Step 4: Run the Cost Analysis
+Now you're ready to scan the project.
+
+1.  From the root of our project repository, run the following command:
+        `infracost breakdown --path environments/staging`
+2.  Infracost will parse the Terraform code, look up the price for each resource (EC2 instances, RDS database, EBS volumes, etc.), and print a clean summary in your terminal.
+
+#### Step 5: Share Your Findings
+This is the most important step.
+
+1.  Take a screenshot of the complete terminal output from the `infracost breakdown` command.
+2.  Post the screenshot in our team's Discord channel. This helps everyone get a baseline understanding of our cloud spend.
+
+---
+* **Support & Guidance:** If you encounter a blocker or have questions about the implementation, please update it in the channels on Discord and tag the team and the leads. The goal is to maintain momentum and move forward efficiently.
